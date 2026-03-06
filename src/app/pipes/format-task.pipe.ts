@@ -1,11 +1,21 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'formatTask'
+  name: 'formatTask',
+  standalone: true
 })
 export class FormatTaskPipe implements PipeTransform {
-  transform(value: string): string {
+  transform(value: string, maxLen: number = 26): string {
     if (!value) return '';
-    return value.length > 20 ? value.substring(0, 20) + '...' : value;
+
+    // simple “nice look” formatting
+    const cleaned = value.trim();
+
+    // truncate if too long
+    if (cleaned.length > maxLen) {
+      return cleaned.slice(0, maxLen).trimEnd() + '…';
+    }
+
+    return cleaned;
   }
 }

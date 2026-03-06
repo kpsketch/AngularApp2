@@ -1,20 +1,52 @@
-<h2>Task Tracker</h2>
+<div class="wrap">
+  <!-- LEFT BOX -->
+  <section class="box">
+    <div class="box-header">
+      <h2>Tasks</h2>
+      <span class="count">({{ (taskService.tasks$ | async)?.length || 0 }})</span>
+    </div>
 
-<div>
-  <input [(ngModel)]="newTask" placeholder="Enter a task">
-  <button (click)="addTask()">Add</button>
+    <div class="add-row">
+      <input [(ngModel)]="newTask" placeholder="Enter a task" />
+      <button (click)="addTask()">Add</button>
+    </div>
+
+    <div class="list">
+      <div
+        class="item"
+        *ngFor="let task of (taskService.tasks$ | async)"
+        [appHighlightTask]="task.isFavorite"
+      >
+        <button class="star" (click)="toggleFav(task.id)" title="Toggle favorite">
+          {{ task.isFavorite ? '★' : '☆' }}
+        </button>
+
+        <span class="name">{{ task.name | formatTask: 30 }}</span>
+
+        <button class="del" (click)="remove(task.id)" title="Delete">✕</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT BOX -->
+  <section class="box">
+    <div class="box-header">
+      <h2>Favorites</h2>
+      <span class="count">({{ (taskService.favorites$ | async)?.length || 0 }})</span>
+    </div>
+
+    <div class="list">
+      <div
+        class="item"
+        *ngFor="let task of (taskService.favorites$ | async)"
+        [appHighlightTask]="true"
+      >
+        <span class="name">{{ task.name | formatTask: 30 }}</span>
+      </div>
+
+      <p class="empty" *ngIf="(taskService.favorites$ | async)?.length === 0">
+        No favorites yet. Click ☆ to add.
+      </p>
+    </div>
+  </section>
 </div>
-
-<ul>
-  <li *ngFor="let task of taskService.tasks$ | async; let i = index">
-
-    <span [appHighlightTask]="task.completed">
-      {{ task.name | formatTask }}
-    </span>
-
-    <button (click)="taskService.completeTask(i)">
-      Complete
-    </button>
-
-  </li>
-</ul>

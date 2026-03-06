@@ -1,18 +1,21 @@
-import { Directive, ElementRef, Input } from '@angular/core';
+import { Directive, HostBinding, Input } from '@angular/core';
 
 @Directive({
-  selector: '[appHighlightTask]'
+  selector: '[appHighlightTask]',
+  standalone: true
 })
 export class HighlightTaskDirective {
-  constructor(private el: ElementRef) {}
+  // true = highlight (favorites)
+  @Input('appHighlightTask') isHighlighted: boolean = false;
 
-  @Input() set appHighlightTask(completed: boolean) {
-    if (completed) {
-      this.el.nativeElement.style.textDecoration = 'line-through';
-      this.el.nativeElement.style.color = 'gray';
-    } else {
-      this.el.nativeElement.style.textDecoration = 'none';
-      this.el.nativeElement.style.color = 'black';
-    }
+  @HostBinding('style.background') get bg() {
+    return this.isHighlighted ? '#fff3c4' : 'transparent';
   }
+
+  @HostBinding('style.border') get border() {
+    return this.isHighlighted ? '1px solid #f2c94c' : '1px solid #ddd';
+  }
+
+  @HostBinding('style.borderRadius') radius = '10px';
+  @HostBinding('style.padding') padding = '8px 10px';
 }

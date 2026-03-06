@@ -1,21 +1,49 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+export type Task = {
+  id: number;
+  name: string;
+  isFavorite: boolean;
+};
+
+@Injectable({ providedIn: 'root' })
 export class TaskService {
-  private tasks = new BehaviorSubject<any[]>([]);
-  tasks$ = this.tasks.asObservable();
+  private nextId = 1;
 
-  addTask(task: any) {
-    const current = this.tasks.value;
-    this.tasks.next([...current, task]);
+  private tasksSubject = new BehaviorSubject<Task[]>([
+    { id: 1, name: 'Learn Angular', isFavorite: false },
+    { id: 2, name: 'Finish Assignment 2', isFavorite: true },
+    { id: 3, name: 'Push to GitHub', isFavorite: false },
+    { id: 4, name: 'Send repo link to instructor', isFavorite: true }
+  ]);
+
+  // Observable list (assignment requirement)
+  tasks$ = this.tasksSubject.asObservable();
+
+  // Favorites list (derived observable)
+  favorites$ = this.tasks$.pipe(
+    map(list => list.filter(t => t.isFavorite))
+  );
+
+  addTask(name: string) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    const current = this.tasksSubject.value;
+    const newTask: Task = { id: ++this.nextId, name: trimmed, isFavorite: false };
+    this.tasksSubject.next([...current, newTask]);
   }
 
-  completeTask(index: number) {
-    const updated = this.tasks.value;
-    updated[index].completed = true;
-    this.tasks.next([...updated]);
+  toggleFavorite(id: number) {
+    const updated = this.tasksSubject.value.map(t =>
+      t.id === id ? { ...t, isFavorite: !t.isFavorite } : t
+    );
+    this.tasksSubject.next(updated);
+  }
+
+  deleteTask(id: number) {
+    const updated = this.tasksSubject.value.filter(t => t.id !== id);
+    this.tasksSubject.next(updated);
   }
 }

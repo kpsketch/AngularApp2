@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { TaskService } from '../services/task.service';
-import { HighlightTaskDirective } from '../directives/highlight-task.directive';
 import { FormatTaskPipe } from '../pipes/format-task.pipe';
+import { HighlightTaskDirective } from '../directives/highlight-task.directive';
 
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [CommonModule, FormsModule, HighlightTaskDirective, FormatTaskPipe],
+  imports: [CommonModule, FormsModule, FormatTaskPipe, HighlightTaskDirective],
   templateUrl: './tasks.component.html',
-  styleUrls: ['./tasks.component.css']
+  styleUrl: './tasks.component.css'
 })
 export class TasksComponent {
   newTask = '';
@@ -19,13 +19,15 @@ export class TasksComponent {
   constructor(public taskService: TaskService) {}
 
   addTask() {
-    if (this.newTask.trim() === '') return;
-
-    this.taskService.addTask({
-      name: this.newTask,
-      completed: false
-    });
-
+    this.taskService.addTask(this.newTask);
     this.newTask = '';
+  }
+
+  toggleFav(id: number) {
+    this.taskService.toggleFavorite(id);
+  }
+
+  remove(id: number) {
+    this.taskService.deleteTask(id);
   }
 }
